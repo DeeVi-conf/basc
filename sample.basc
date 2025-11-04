@@ -1,0 +1,4 @@
+var x = 42;
+if (x > 10) {
+    echo("hi mom");
+}
