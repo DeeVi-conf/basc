@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lexer.h"
+#include "ast.h"
 
 #define ANSI_RED "\x1b[31m"
 #define ANSI_GREEN "\x1b[32m"
@@ -38,8 +39,10 @@ int main(int argc, char* argv[]) {
         }
 
         Lexer* lexer = lexer_new(code);
-        while (1) {
+/*      while (1) {
+
             Token* t = lexer_next_token(lexer);
+            
             printf("%d\t%-10s\t%s\n", t->line, (char*[]){
                 "VAR", "FUNC", "IF", "ELSE", "FOR", "IDENT", "NUMBER", "STRING",
                 "OP", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "SEMI", "EOF", "UNKNOWN"
@@ -54,7 +57,7 @@ int main(int argc, char* argv[]) {
             free(t->value);
             free(t);
         }
-
+*/
         free(code);
         free(lexer);
     }
