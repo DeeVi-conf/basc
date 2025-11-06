@@ -3,6 +3,7 @@
 #include <string.h>
 #include "lexer.h"
 #include "ast.h"
+#include "parser.h"
 
 #define ANSI_RED "\x1b[31m"
 #define ANSI_GREEN "\x1b[32m"
@@ -39,7 +40,9 @@ int main(int argc, char* argv[]) {
         }
 
         Lexer* lexer = lexer_new(code);
-/*      while (1) {
+
+/*
+        while (1) {
 
             Token* t = lexer_next_token(lexer);
             
@@ -58,8 +61,13 @@ int main(int argc, char* argv[]) {
             free(t);
         }
 */
+        Parser* parser = parser_new(lexer);
+        ASTNode* root = parse_program(parser);
+        ast_print(root, 0);
+
         free(code);
         free(lexer);
+        free(root);
     }
 
     return EXIT_SUCCESS;
