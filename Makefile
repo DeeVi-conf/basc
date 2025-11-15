@@ -1,6 +1,6 @@
 C = clang
 
-SRC = main.c lexer.c ast.c parser.c
+SRC = main.c lexer.c ast.c parser.c codegen.c
 OUT = basc
 
 all: $(OUT)

@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+
+#include "codegen.h"
 #include "lexer.h"
 #include "ast.h"
 #include "parser.h"
+#include "codegen.h"
 
 #define ANSI_RED "\x1b[31m"
 #define ANSI_GREEN "\x1b[32m"
@@ -14,6 +18,7 @@
 #define ANSI_RESET "\x1b[0m"
 
 static char* read_file(const char* filename);
+static bool debug = true;
 
 int main(int argc, char* argv[]) {
     if (argc == 1) {
@@ -41,29 +46,35 @@ int main(int argc, char* argv[]) {
 
         Lexer* lexer = lexer_new(code);
 
-/*
-        while (1) {
+        if(debug){
+            while (1) {
 
-            Token* t = lexer_next_token(lexer);
-            
-            printf("%d\t%-10s\t%s\n", t->line, (char*[]){
-                "VAR", "FUNC", "IF", "ELSE", "FOR", "IDENT", "NUMBER", "STRING",
-                "OP", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "SEMI", "EOF", "UNKNOWN"
-            }[t->type], t->value);
+                Token* t = lexer_next_token(lexer);
+                
+                printf("%d\t%-10s\t%s\n", t->line, (char*[]){
+                    "VAR", "FUNC", "IF", "ELSE", "FOR", "IDENT", "NUMBER", "STRING",
+                    "OP", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "SEMI", "EOF", "UNKNOWN"
+                }[t->type], t->value);
 
-            if (t->type == TOKEN_EOF) {
+                if (t->type == TOKEN_EOF) {
+                    free(t->value);
+                    free(t);
+                    break;
+                }
+
                 free(t->value);
                 free(t);
-                break;
             }
-
-            free(t->value);
-            free(t);
+            free(lexer);
+            lexer = lexer_new(code);
         }
-*/
+
         Parser* parser = parser_new(lexer);
         ASTNode* root = parse_program(parser);
-        ast_print(root, 0);
+        if (debug) ast_print(root, 0);
+
+        printf("Generated code...");
+        codegen_to_file(root, "out.sh");
 
         free(code);
         free(lexer);
