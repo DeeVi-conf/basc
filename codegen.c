@@ -12,21 +12,32 @@ static char* strclone(const char* s){
 
 }
 
-static char* strappend(char* base, const char* add){
-    if(!base){
-        
-        return strclone(add);
-    
-    }else{
+static char* strappend(char* base, const char* add) {
+    if (!add) return base;
 
-        size_t newlen = strlen(base) + strlen(add);
-        base = realloc(base, newlen);
-        strcat(base, add);
+    if (!base) {
+        base = malloc(strlen(add) + 1);
+        strcpy(base, add);
         return base;
-
     }
 
+    size_t baselen = strlen(base);
+    size_t addlen  = strlen(add);
+
+    char* newbuf = realloc(base, baselen + addlen + 1);
+    if (!newbuf) {
+        free(base);
+        fprintf(stderr, "Out of memory in strappend()\n");
+        exit(1);
+    }
+
+    base = newbuf;
+
+    memcpy(base + baselen, add, addlen + 1); // copies terminating '\0'
+
+    return base;
 }
+
 
 char* codegen(ASTNode* node) {
     if (!node) return strclone("");

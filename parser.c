@@ -33,7 +33,7 @@ Parser* parser_new(Lexer* lexer) {
 }
 
 static ASTNode* parse_statement(Parser* p);
-static ASTNode* parse_expression(Parser* p);
+ASTNode* parse_expression(Parser* p);
 
 ASTNode* parse_program(Parser* p) {
     if (debug) printf("DEBUG: parse_program entered\tType: %d\tValue: %s\n", p->current->type, p->current->value ? p->current->value : "<null>");
@@ -86,8 +86,29 @@ static ASTNode* parse_statement(Parser* p) {
     exit(EXIT_FAILURE);
 }
 
-static ASTNode* parse_expression(Parser* p) {
-    // Literals
+ASTNode* parse_expression(Parser* p) {
+    ASTNode* left = parse_term(p);
+
+    // parse sequences like: x + y + z
+    while (p->current->type == TOKEN_OP) {
+        char* op = strdup(p->current->value); // "+" or "-" etc
+        advance(p);
+
+        ASTNode* right = parse_term(p);
+
+        ASTNode* bin = ast_new(AST_BINARY_EXPR);
+        bin->binary_expr.left = left;
+        bin->binary_expr.right = right;
+        bin->binary_expr.op = op;
+
+        left = bin; // new left side
+    }
+
+    return left;
+}
+
+
+ASTNode* parse_term(Parser* p) {
     if (p->current->type == TOKEN_NUMBER || p->current->type == TOKEN_STRING) {
         ASTNode* lit = ast_new(AST_LITERAL);
         lit->literal.value = strdup(p->current->value);
@@ -95,7 +116,6 @@ static ASTNode* parse_expression(Parser* p) {
         return lit;
     }
 
-    // Identifiers
     if (p->current->type == TOKEN_IDENT) {
         ASTNode* id = ast_new(AST_IDENTIFIER);
         id->identifier.name = strdup(p->current->value);
@@ -103,6 +123,13 @@ static ASTNode* parse_expression(Parser* p) {
         return id;
     }
 
-    fprintf(stderr, "Unexpected expression start '%s'\n", p->current->value);
+    if (p->current->type == TOKEN_LPAREN) {
+        advance(p); // '('
+        ASTNode* expr = parse_expression(p);
+        expect(p, TOKEN_RPAREN);
+        return expr;
+    }
+
+    fprintf(stderr, "Unexpected term '%s'\n", p->current->value);
     exit(EXIT_FAILURE);
 }

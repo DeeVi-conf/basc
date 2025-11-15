@@ -13,4 +13,10 @@ Parser* parser_new(Lexer* lexer);
 
 ASTNode* parse_program(Parser* p);
 
+ASTNode* parse_expression(Parser* p);
+
+ASTNode* parse_term(Parser* p);
+
+ASTNode* parse_factor(Parser* p);
+
 #endif

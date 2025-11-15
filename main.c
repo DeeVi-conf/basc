@@ -47,6 +47,9 @@ int main(int argc, char* argv[]) {
         Lexer* lexer = lexer_new(code);
 
         if(debug){
+            
+            printf("\n\n-----------------\nGenerated Tokens\n");
+
             while (1) {
 
                 Token* t = lexer_next_token(lexer);
@@ -71,10 +74,14 @@ int main(int argc, char* argv[]) {
 
         Parser* parser = parser_new(lexer);
         ASTNode* root = parse_program(parser);
-        if (debug) ast_print(root, 0);
+        if (debug){
+            printf("\n\n-----------------\nGenerated AST\n");
+            ast_print(root, 0);
+        }
 
-        printf("Generated code...");
+        printf("\n\n-----------------\nGenerated code\n");
         codegen_to_file(root, "out.sh");
+        system("cat out.sh");
 
         free(code);
         free(lexer);
